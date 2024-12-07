@@ -11,7 +11,9 @@ export const errorHandler: ErrorRequestHandler = (
         return next(err);
     }
 
-    console.error(err);
+    if (process.env.NODE_ENV !== 'production') {
+        console.error(err);
+    }
 
     if (err instanceof ResultError) {
         res.status(err.statusCode).json({ error: err.message });

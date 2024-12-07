@@ -12,20 +12,10 @@ const swaggerRouter = Router();
 swaggerRouter.use(
     '/docs',
     swaggerObj.swaggerUi.serve,
-    swaggerObj.swaggerUi.setup(swaggerObj.swaggerDocs, {
-        swaggerOptions: {
-            authAction: {
-                BearerAuth: {
-                    name: 'Authorization',
-                    schema: {
-                        type: 'apiKey',
-                        in: 'header',
-                    },
-                    value: `Bearer <your_token>`,
-                },
-            },
-        },
-    }),
+    swaggerObj.swaggerUi.setup(
+        swaggerObj.swaggerDocs,
+        swaggerObj.swaggerUiOptions,
+    ),
 );
 
 /**
@@ -38,7 +28,7 @@ swaggerRouter.use(
  *     tags:
  *       - Health
  *     security:
- *       - BearerAuth: []  # This indicates JWT token is required
+ *       - Authorization: []
  *     responses:
  *       200:
  *         description: API is healthy
@@ -52,9 +42,15 @@ swaggerRouter.use(
  *                   example: API is healthy!
  *       401:
  *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
  */
 swaggerRouter.get('/health', verifyToken, (req, res) => {
-    res.status(200).json({ message: 'API is healthy!' });
+    res.status(200).json({
+        status: 'success',
+        message: 'API is healthy!',
+        time: new Date().toISOString(),
+    });
 });
 
 /**
@@ -66,7 +62,7 @@ swaggerRouter.get('/health', verifyToken, (req, res) => {
  *     tags:
  *       - Example
  *     security:
- *       - BearerAuth: []  # This indicates JWT token is required
+ *       - Authorization: []
  *     responses:
  *       200:
  *         description: Example response
@@ -80,9 +76,49 @@ swaggerRouter.get('/health', verifyToken, (req, res) => {
  *                   example: Example route!
  *       401:
  *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
  */
 swaggerRouter.get('/example', verifyToken, (req, res) => {
-    res.status(200).json({ message: 'Example route!' });
+    res.status(200).json({
+        status: 'success',
+        message: 'Example route!',
+        data: { example: true },
+    });
+});
+
+/**
+ * @swagger
+ * /protected:
+ *   get:
+ *     summary: Protected route
+ *     description: Accessible only with a valid Bearer token
+ *     tags:
+ *       - Protected
+ *     security:
+ *       - Authorization: []
+ *     responses:
+ *       200:
+ *         description: Protected resource accessed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Access granted
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ */
+swaggerRouter.get('/protected', verifyToken, (req, res) => {
+    res.status(200).json({
+        status: 'success',
+        message: 'Access granted',
+        user: req.user,
+    });
 });
 
 export default swaggerRouter;
