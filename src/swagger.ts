@@ -1,51 +1,42 @@
-import swaggerJsDoc from "swagger-jsdoc";
-import swaggerUi from "swagger-ui-express";
+import swaggerJsDoc from 'swagger-jsdoc';
+import swaggerUi from 'swagger-ui-express';
 
 /**
  * @swagger Swagger options
  */
-const swaggerOptions = {
-    swaggerDefinition: {
-        openapi: "3.0.0",
-        info: {
-            title: "Wallet API",
-            version: "1.0.0",
-            description: "API for managing personal budgets",
-        },
-        servers: [
-            {
-                url: "http://localhost:9000/api",
-                description: "Local development server",
-            },
-        ],
-        components: {
-            securitySchemes: {
-                BearerAuth: {
-                    type: "http",
-                    scheme: "bearer",
-                    bearerFormat: "JWT",
-                },
-            },
-        },
-        securityDefinitions: {
-            BearerAuth: {
-                type: "apiKey",
-                in: "header",
-                name: "Authorization",
-                description:
-                    "JWT Authorization header using the Bearer scheme. Example: `Bearer <token>`",
-            },
-        },
-        security: [
-            {
-                BearerAuth: [],
-            },
-        ],
+const swaggerDefinition = {
+    openapi: '3.0.0',
+    info: {
+        title: 'Wallet API',
+        version: '1.0.0',
+        description: 'API for managing personal budgets',
     },
-    apis: ["src/routes/router.ts"],
+    servers: [
+        {
+            url: 'http://localhost:9000/api/v1/swagger/docs',
+            description: 'Local development server',
+        },
+    ],
+    components: {
+        securitySchemes: {
+            BearerAuth: {
+                type: 'http',
+                scheme: 'bearer',
+                bearerFormat: 'JWT',
+            },
+        },
+    },
+    security: [
+        {
+            BearerAuth: [],
+        },
+    ],
 };
 
-const swaggerDocs = swaggerJsDoc(swaggerOptions);
+const swaggerDocs = swaggerJsDoc({
+    definition: swaggerDefinition,
+    apis: ['src/routes/swaggerRoutes.ts'],
+});
 
 const swaggerObj = {
     swaggerUi,

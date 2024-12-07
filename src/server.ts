@@ -1,11 +1,11 @@
-import { config } from "dotenv";
+import { config } from 'dotenv';
 
-import http from "http";
-import { expressConfig } from "./express";
-import { dbInit } from "./database/dbInit";
-import { logger } from "./utils/logger";
+import http from 'http';
+import { expressConfig } from './express';
+import { dbInit } from './database/dbInit';
+import { logger } from './utils/logger/logger';
 
-if (process.env.NODE_ENV !== "production") {
+if (process.env.NODE_ENV !== 'production') {
     config();
 }
 
