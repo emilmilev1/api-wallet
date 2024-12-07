@@ -10,7 +10,7 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 /**
- * Start the server
+ * @description Start the server
  * @returns void
  */
 const start = (): void => {

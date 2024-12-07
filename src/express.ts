@@ -56,8 +56,8 @@ export const expressConfig = (): Application => {
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
 
+    app.use("/api", router);
     setupRoutes(router);
-    app.use(router);
 
     app.use(
         (err: Error, req: Request, res: Response, next: NextFunction): void => {

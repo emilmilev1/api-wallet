@@ -14,14 +14,42 @@ const swaggerOptions = {
         },
         servers: [
             {
-                url: "http://localhost:9000",
+                url: "http://localhost:9000/api",
                 description: "Local development server",
             },
         ],
+        components: {
+            securitySchemes: {
+                BearerAuth: {
+                    type: "http",
+                    scheme: "bearer",
+                    bearerFormat: "JWT",
+                },
+            },
+        },
+        securityDefinitions: {
+            BearerAuth: {
+                type: "apiKey",
+                in: "header",
+                name: "Authorization",
+                description:
+                    "JWT Authorization header using the Bearer scheme. Example: `Bearer <token>`",
+            },
+        },
+        security: [
+            {
+                BearerAuth: [],
+            },
+        ],
     },
-    apis: ["./src/routes/*.ts"],
+    apis: ["src/routes/router.ts"],
 };
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
 
-module.exports = { swaggerUi, swaggerDocs };
+const swaggerObj = {
+    swaggerUi,
+    swaggerDocs,
+};
+
+export default swaggerObj;
