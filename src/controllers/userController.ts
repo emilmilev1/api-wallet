@@ -6,6 +6,8 @@ import { User } from '../interfaces/user';
 import dbClient from '../database/dbClient';
 import { constants } from '../common/constants';
 import { ResultError } from '../utils/customErrors/resultError';
+import { UserDb } from '../types/userDb';
+import { UserJwtPayload } from '../interfaces/userJwtPayload';
 
 /**
  * @description Register a new user
@@ -48,13 +50,17 @@ export const registerUser = async (
             },
         });
 
+        const userData: UserDb = {
+            id: newUser.id,
+            email: newUser.email,
+            name: newUser.name,
+            createdAt: newUser.createdAt,
+            updatedAt: newUser.updatedAt,
+        };
+
         res.status(201).json({
             message: 'User created successfully',
-            user: {
-                id: newUser.id,
-                email: newUser.email,
-                name: newUser.name,
-            },
+            user: userData,
         });
     } catch (error: any) {
         const err = error as Error;
@@ -94,7 +100,7 @@ export const loginUser = async (
             return next(new ResultError('Invalid email or password', 401));
         }
 
-        const userData = {
+        const userData: UserJwtPayload = {
             id: user.id,
             email: user.email,
             name: user.name,

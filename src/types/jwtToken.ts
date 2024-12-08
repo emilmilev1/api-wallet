@@ -1,5 +1,5 @@
 export type JWTDecoded = {
-    id: number;
+    id: string;
     email: string;
     name: string;
     iat: number;

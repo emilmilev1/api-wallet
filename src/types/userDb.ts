@@ -1,7 +1,7 @@
 export type UserDb = {
-    id: number;
+    id: string;
     email: string;
     name: string;
-    createdAt: Date;
-    updatedAt: Date;
+    createdAt?: Date;
+    updatedAt?: Date;
 };
