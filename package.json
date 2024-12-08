@@ -9,7 +9,11 @@
         "dev": "nodemon --exec tsx src/server.ts",
         "test": "jest",
         "lint": "eslint . --ext .ts",
-        "format": "prettier --write ."
+        "format": "prettier --write .",
+        "seed": "prisma db seed"
+    },
+    "prisma": {
+        "seed": "tsx prisma/seed.ts"
     },
     "keywords": [],
     "author": "",
