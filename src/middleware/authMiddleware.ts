@@ -2,7 +2,8 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { ResultError } from '../utils/customErrors/resultError';
 import dbClient from '../database/dbClient';
-import { User } from '../interfaces/user';
+import { JWTDecoded } from '../types/jwtToken';
+import { UserDb } from '../types/userDb';
 
 const secret = process.env.JWT_SECRET as string;
 
@@ -20,12 +21,10 @@ export const verifyToken = async (
     const token = authHeader.split(' ')[1];
 
     try {
-        const decoded = jwt.verify(token, secret);
+        const decoded = jwt.verify(token, secret) as JWTDecoded;
 
-        const userData = decoded as User;
-
-        const user: User | null = await dbClient.user.findUnique({
-            where: { id: userData.id },
+        const user: UserDb | null = await dbClient.user.findUnique({
+            where: { id: decoded.id },
         });
         if (!user) {
             return next(

@@ -13,9 +13,9 @@ if (process.env.NODE_ENV !== 'production') {
  * @description Start the server
  * @returns void
  */
-const start = (): void => {
+const start = async (): Promise<void> => {
     const app = expressConfig();
-    dbInit();
+    await dbInit();
 
     const server = http.createServer(app);
     const PORT = process.env.PORT || process.env.SERVER_DEV_PORT;

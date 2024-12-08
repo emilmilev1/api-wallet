@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import swaggerObj from '../swagger';
 import { verifyToken } from '../middleware/authMiddleware';
+import { ApiResponse } from '../types/apiResponse';
 
 const swaggerRouter = Router();
 
@@ -46,11 +47,13 @@ swaggerRouter.use(
  *         description: Forbidden
  */
 swaggerRouter.get('/health', verifyToken, (req, res) => {
-    res.status(200).json({
+    const response: ApiResponse = {
         status: 'success',
         message: 'API is healthy!',
         time: new Date().toISOString(),
-    });
+    };
+
+    res.status(200).json(response);
 });
 
 /**
@@ -80,11 +83,13 @@ swaggerRouter.get('/health', verifyToken, (req, res) => {
  *         description: Forbidden
  */
 swaggerRouter.get('/example', verifyToken, (req, res) => {
-    res.status(200).json({
+    const response: ApiResponse = {
         status: 'success',
         message: 'Example route!',
         data: { example: true },
-    });
+    };
+
+    res.status(200).json(response);
 });
 
 /**
@@ -114,11 +119,13 @@ swaggerRouter.get('/example', verifyToken, (req, res) => {
  *         description: Forbidden
  */
 swaggerRouter.get('/protected', verifyToken, (req, res) => {
-    res.status(200).json({
+    const response: ApiResponse = {
         status: 'success',
         message: 'Access granted',
-        user: req.user,
-    });
+        data: { user: req.user },
+    };
+
+    res.status(200).json(response);
 });
 
 export default swaggerRouter;
