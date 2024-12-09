@@ -21,6 +21,10 @@ export const createTransaction = async (
     }
 
     try {
+        if (userId !== req.user.id) {
+            return next(new ResultError('Unauthorized user', 401));
+        }
+
         const newTransaction: Transaction = await dbClient.transaction.create({
             data: {
                 type,
@@ -54,6 +58,17 @@ export const updateTransaction = async (
     const { type, amount, category, date, description } = req.body;
 
     try {
+        const existingTransaction = await dbClient.transaction.findUnique({
+            where: { id },
+        });
+        if (!existingTransaction) {
+            return next(new ResultError('Transaction not found', 404));
+        }
+
+        if (existingTransaction.userId !== req.user.id) {
+            return next(new ResultError('Unauthorized user', 403));
+        }
+
         const updatedTransaction = await dbClient.transaction.update({
             where: { id },
             data: {
@@ -86,6 +101,17 @@ export const deleteTransaction = async (
     const { id } = req.params;
 
     try {
+        const existingTransaction = await dbClient.transaction.findUnique({
+            where: { id },
+        });
+        if (!existingTransaction) {
+            return next(new ResultError('Transaction not found', 404));
+        }
+
+        if (existingTransaction.userId !== req.user.id) {
+            return next(new ResultError('Unauthorized user', 403));
+        }
+
         await dbClient.transaction.delete({
             where: { id },
         });

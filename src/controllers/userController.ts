@@ -107,7 +107,7 @@ export const loginUser = async (
         };
 
         const token = jwt.sign(userData, process.env.JWT_SECRET as string, {
-            expiresIn: '1h',
+            expiresIn: '30m',
         });
         if (!token) {
             return next(new ResultError('Error creating token', 500));
