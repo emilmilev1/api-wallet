@@ -3,10 +3,17 @@ import {
     createTransaction,
     updateTransaction,
     deleteTransaction,
+    getTransactions,
 } from '../controllers/transactionController';
 import { verifyToken } from '../middleware/authMiddleware';
 
 const transactionRouter = express.Router();
+
+/**
+ * @route GET /api/v1/transactions
+ * @description Get filtered and sorted transactions
+ */
+transactionRouter.get('/', verifyToken, getTransactions);
 
 /**
  * @route POST /api/v1/transactions

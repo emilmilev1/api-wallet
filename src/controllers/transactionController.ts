@@ -2,6 +2,61 @@ import { Request, Response, NextFunction } from 'express';
 import dbClient from '../database/dbClient';
 import { ResultError } from '../utils/customErrors/resultError';
 import { Transaction } from '../interfaces/transaction';
+import { TransactionType } from '../types/transactionType';
+
+/**
+ * @description Get filtered and sorted transactions
+ * @route GET /api/v1/transactions
+ */
+export const getTransactions = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+) => {
+    const { type, category, startDate, endDate, sortBy, sortOrder } = req.query;
+    const userId = req.user.id;
+
+    try {
+        const whereClause: {
+            userId: string;
+            type?: TransactionType;
+            category?: string;
+            date?: {
+                gte?: Date;
+                lte?: Date;
+            };
+        } = { userId };
+
+        if (type) {
+            if (!['INCOME', 'EXPENSE'].includes(type as TransactionType)) {
+                return next(new ResultError('Invalid transaction type', 400));
+            }
+            whereClause.type = type as TransactionType;
+        }
+
+        if (category) {
+            whereClause.category = category as string;
+        }
+
+        if (startDate || endDate) {
+            whereClause.date = {
+                ...(startDate && { gte: new Date(startDate as string) }),
+                ...(endDate && { lte: new Date(endDate as string) }),
+            };
+        }
+
+        const transactions = await dbClient.transaction.findMany({
+            where: whereClause,
+            orderBy: sortBy
+                ? { [sortBy as string]: sortOrder === 'desc' ? 'desc' : 'asc' }
+                : { date: 'asc' },
+        });
+
+        res.status(200).json({ transactions });
+    } catch (error) {
+        next(error);
+    }
+};
 
 /**
  * @description Create a new transaction

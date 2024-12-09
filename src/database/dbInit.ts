@@ -14,7 +14,7 @@ export const dbInit = async (): Promise<void> => {
         process.exit(1);
     }
 
-    dbClient.$on('error', (error: any) => {
+    dbClient.$on('error', (error: Error) => {
         logger.error('Database error:', error);
     });
 
