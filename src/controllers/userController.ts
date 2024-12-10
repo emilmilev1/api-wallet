@@ -1,13 +1,13 @@
 import { NextFunction, Request, Response } from 'express';
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
 
-import { User } from '../interfaces/user';
-import dbClient from '../database/dbClient';
-import { constants } from '../common/constants';
 import { ResultError } from '../utils/customErrors/resultError';
-import { UserDb } from '../types/userDb';
-import { UserJwtPayload } from '../interfaces/userJwtPayload';
+import { CreateUserDTO, UserDTO } from '../models/user.dto';
+import { getService } from '../di/container';
+import { IUserAuthentication } from '../interfaces/userAuthentication.interface';
+
+const authService = getService<IUserAuthentication>(
+    'UserAuthenticationService'
+);
 
 /**
  * @description Register a new user
@@ -21,51 +21,27 @@ export const registerUser = async (
     res: Response,
     next: NextFunction
 ) => {
-    const { name, email, password } = req.body;
+    const createUserDto: CreateUserDTO = req.body;
 
-    if (!name || !email || !password) {
+    if (
+        !createUserDto.name ||
+        !createUserDto.email ||
+        !createUserDto.password
+    ) {
         return next(
             new ResultError('Name, email, and password are required', 400)
         );
     }
 
     try {
-        const existingUser: User | null = await dbClient.user.findUnique({
-            where: { email },
-        });
-        if (existingUser) {
-            return next(new ResultError('User already exists', 409));
-        }
-
-        const hashedPassword = await bcrypt.hash(
-            password,
-            constants.BCRYPT_SALT_ROUNDS
-        );
-
-        const newUser = await dbClient.user.create({
-            data: {
-                name,
-                email,
-                password: hashedPassword,
-            },
-        });
-
-        const userData: UserDb = {
-            id: newUser.id,
-            email: newUser.email,
-            name: newUser.name,
-            createdAt: newUser.createdAt,
-            updatedAt: newUser.updatedAt,
-        };
+        const newUser = await authService.registerUser(createUserDto);
 
         res.status(201).json({
             message: 'User created successfully',
-            user: userData,
+            user: newUser,
         });
     } catch (error: any) {
-        const err = error as Error;
-
-        next(err);
+        next(error);
     }
 };
 
@@ -81,37 +57,17 @@ export const loginUser = async (
     res: Response,
     next: NextFunction
 ) => {
-    const { email, password } = req.body;
+    const userDto: UserDTO = req.body;
 
-    if (!email || !password) {
+    if (!userDto.email || !userDto.password) {
         return next(new ResultError('Email and password are required', 400));
     }
 
     try {
-        const user: User | null = await dbClient.user.findUnique({
-            where: { email },
-        });
-        if (!user) {
-            return next(new ResultError('Invalid email or password', 401));
-        }
-
-        const isPasswordValid = await bcrypt.compare(password, user.password);
-        if (!isPasswordValid) {
-            return next(new ResultError('Invalid email or password', 401));
-        }
-
-        const userData: UserJwtPayload = {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-        };
-
-        const token = jwt.sign(userData, process.env.JWT_SECRET as string, {
-            expiresIn: '30m',
-        });
-        if (!token) {
-            return next(new ResultError('Error creating token', 500));
-        }
+        const token = await authService.loginUser(
+            userDto.email,
+            userDto.password
+        );
 
         res.status(200).json({ message: 'Login successful', token });
     } catch (error) {

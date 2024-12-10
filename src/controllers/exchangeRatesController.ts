@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { fetchExchangeRatesData } from '../services/fetchExchangeRatesData';
+import { fetchExchangeRatesData } from '../external/fetchExchangeRatesData';
 import { ResultError } from '../utils/customErrors/resultError';
 
 /**
@@ -27,8 +27,8 @@ export const exchangeRatesController = async (
         const targetSymbols = symbols.split(',');
 
         const exchangeRates = await fetchExchangeRatesData(
-            currency,
-            targetSymbols
+            currency as string,
+            targetSymbols as string[]
         );
         if (!exchangeRates) {
             res.status(500).json({ error: 'Failed to fetch exchange rates' });

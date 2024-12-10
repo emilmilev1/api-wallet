@@ -1,11 +1,14 @@
 import { Request, Response, NextFunction } from 'express';
-import dbClient from '../database/dbClient';
 import { ResultError } from '../utils/customErrors/resultError';
 import { Transaction } from '../interfaces/transaction';
-import { TransactionType } from '../types/transactionType';
 import { CategoryStats } from '../interfaces/categoryStats';
 import { MonthlySummary } from '../interfaces/monthlySummary';
-import redisClient from '../redis/redisClient';
+import { getCache, setCache } from '../utils/cache/cacheUtils';
+import {
+    getAggregateAmount,
+    getAllTransactions,
+    getExpenseStatsByCategory,
+} from '../repositories/analyticsRepository';
 
 /**
  * @description Get current balance
@@ -19,18 +22,12 @@ export const getBalance = async (
     const userId = req.user.id;
 
     try {
-        const incomes = await dbClient.transaction.aggregate({
-            where: { userId, type: 'INCOME' as TransactionType },
-            _sum: { amount: true },
-        });
+        const [income, expense] = await Promise.all([
+            getAggregateAmount(userId, 'INCOME'),
+            getAggregateAmount(userId, 'EXPENSE'),
+        ]);
 
-        const expenses = await dbClient.transaction.aggregate({
-            where: { userId, type: 'EXPENSE' as TransactionType },
-            _sum: { amount: true },
-        });
-
-        const currentBalance =
-            (incomes._sum.amount || 0) - (expenses._sum.amount || 0);
+        const currentBalance = income - expense;
 
         res.status(200).json({ currentBalance });
     } catch (error) {
@@ -51,28 +48,22 @@ export const getCategoryStats = async (
     const cacheKey = `categoryStats:${userId}`;
 
     try {
-        const cachedStats = await redisClient.get(cacheKey);
+        const cachedStats = await getCache(cacheKey);
         if (cachedStats) {
             res.status(200).json({ stats: JSON.parse(cachedStats) });
         }
 
-        const stats = await dbClient.transaction.groupBy({
-            by: ['category'],
-            where: { userId, type: 'EXPENSE' as TransactionType },
-            _sum: { amount: true },
-            orderBy: { _sum: { amount: 'desc' } },
-        });
+        const stats = await getExpenseStatsByCategory(userId);
 
         const formattedStats: CategoryStats[] = stats.map(
-            (stat: { category: string; _sum: { amount: number | null } }) => ({
+            (stat: { category: any; _sum: { amount: any } }) => ({
                 category: stat.category,
                 totalAmount: stat._sum.amount || 0,
             })
         );
 
-        await redisClient.set(cacheKey, JSON.stringify(formattedStats), {
-            EX: 3600,
-        }); // It will expire in 1 hour.
+        // Cache will expire in 1 hour.
+        await setCache(cacheKey, JSON.stringify(formattedStats), 3600);
 
         res.status(200).json({ stats: formattedStats });
     } catch (error) {
@@ -92,11 +83,7 @@ export const getMonthlySummary = async (
     const userId = req.user.id;
 
     try {
-        const transactions = await dbClient.transaction.findMany({
-            where: { userId },
-            select: { amount: true, date: true, type: true },
-            orderBy: { date: 'asc' },
-        });
+        const transactions = await getAllTransactions(userId);
 
         const summary: MonthlySummary = transactions.reduce(
             (acc: MonthlySummary, transaction: Transaction) => {

@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { Parser } from 'json2csv';
 import { ResultError } from '../utils/customErrors/resultError';
-import { fetchExchangeRatesData } from '../services/fetchExchangeRatesData';
+import { fetchExchangeRatesData } from '../external/fetchExchangeRatesData';
 
 /**
  * @description Download transactions report in CSV format

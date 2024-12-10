@@ -1,14 +1,22 @@
 import { Request, Response, NextFunction } from 'express';
-import dbClient from '../database/dbClient';
 import { ResultError } from '../utils/customErrors/resultError';
-import { Transaction } from '../interfaces/transaction';
 import { TransactionType } from '../types/transactionType';
+import {
+    CreateTransactionDTO,
+    UpdateTransactionDTO,
+} from '../models/transaction.dto';
+import { ITransactionRepository } from '../interfaces/transactionRepository.interface';
+import { TransactionRepository } from '../repositories/transactionRepository';
+
+// DI
+const transactionRepository: ITransactionRepository =
+    new TransactionRepository();
 
 /**
  * @description Get filtered and sorted transactions
  * @route GET /api/v1/transactions
  */
-export const getTransactions = async (
+export const readTransactionHandler = async (
     req: Request,
     res: Response,
     next: NextFunction
@@ -45,12 +53,11 @@ export const getTransactions = async (
             };
         }
 
-        const transactions = await dbClient.transaction.findMany({
-            where: whereClause,
-            orderBy: sortBy
-                ? { [sortBy as string]: sortOrder === 'desc' ? 'desc' : 'asc' }
-                : { date: 'asc' },
-        });
+        const transactions = await transactionRepository.findTransactions(
+            whereClause,
+            sortBy as string,
+            (sortOrder === 'desc' ? 'desc' : 'asc') as 'asc' | 'desc'
+        );
 
         res.status(200).json({ transactions });
     } catch (error) {
@@ -62,34 +69,34 @@ export const getTransactions = async (
  * @description Create a new transaction
  * @route POST /api/v1/transactions
  */
-export const createTransaction = async (
+export const createTransactionHandler = async (
     req: Request,
     res: Response,
     next: NextFunction
 ) => {
-    const { type, amount, category, date, description, userId } = req.body;
+    const createTransactionDto: CreateTransactionDTO = req.body;
 
-    if (!type || !amount || !category || !date || !userId) {
+    if (
+        !createTransactionDto.type ||
+        !createTransactionDto.amount ||
+        !createTransactionDto.category ||
+        !createTransactionDto.date
+    ) {
         return next(
             new ResultError('All fields except description are required', 400)
         );
     }
 
     try {
-        if (userId !== req.user.id) {
-            return next(new ResultError('Unauthorized user', 401));
+        const userId = req.user.id;
+        if (!userId) {
+            return next(new ResultError('Unauthorized user', 403));
         }
 
-        const newTransaction: Transaction = await dbClient.transaction.create({
-            data: {
-                type,
-                amount,
-                category,
-                date: new Date(date),
-                description,
-                userId,
-            },
-        });
+        createTransactionDto.date = new Date(createTransactionDto.date);
+
+        const newTransaction =
+            await transactionRepository.createTransaction(createTransactionDto);
 
         res.status(201).json({
             message: 'Transaction created successfully',
@@ -104,18 +111,17 @@ export const createTransaction = async (
  * @description Update a transaction
  * @route PUT /api/v1/transactions/:id
  */
-export const updateTransaction = async (
+export const updateTransactionHandler = async (
     req: Request,
     res: Response,
     next: NextFunction
 ) => {
     const { id } = req.params;
-    const { type, amount, category, date, description } = req.body;
+    const updateTransactionDto: UpdateTransactionDTO = req.body;
 
     try {
-        const existingTransaction = await dbClient.transaction.findUnique({
-            where: { id },
-        });
+        const existingTransaction =
+            await transactionRepository.findTransactionById(id);
         if (!existingTransaction) {
             return next(new ResultError('Transaction not found', 404));
         }
@@ -124,16 +130,15 @@ export const updateTransaction = async (
             return next(new ResultError('Unauthorized user', 403));
         }
 
-        const updatedTransaction = await dbClient.transaction.update({
-            where: { id },
-            data: {
-                type,
-                amount,
-                category,
-                date: date ? new Date(date) : undefined,
-                description,
-            },
-        });
+        if (updateTransactionDto.date) {
+            updateTransactionDto.date = new Date(updateTransactionDto.date);
+        }
+
+        const updatedTransaction =
+            await transactionRepository.updateTransaction(
+                id,
+                updateTransactionDto
+            );
 
         res.status(200).json({
             message: 'Transaction updated successfully',
@@ -148,7 +153,7 @@ export const updateTransaction = async (
  * @description Delete a transaction
  * @route DELETE /api/v1/transactions/:id
  */
-export const deleteTransaction = async (
+export const deleteTransactionHandler = async (
     req: Request,
     res: Response,
     next: NextFunction
@@ -156,9 +161,8 @@ export const deleteTransaction = async (
     const { id } = req.params;
 
     try {
-        const existingTransaction = await dbClient.transaction.findUnique({
-            where: { id },
-        });
+        const existingTransaction =
+            await transactionRepository.findTransactionById(id);
         if (!existingTransaction) {
             return next(new ResultError('Transaction not found', 404));
         }
@@ -167,9 +171,7 @@ export const deleteTransaction = async (
             return next(new ResultError('Unauthorized user', 403));
         }
 
-        await dbClient.transaction.delete({
-            where: { id },
-        });
+        await transactionRepository.deleteTransaction(id);
 
         res.status(200).json({ message: 'Transaction deleted successfully' });
     } catch (error) {
