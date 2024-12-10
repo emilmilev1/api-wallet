@@ -7,6 +7,7 @@ import infoRouter from './infoRoutes';
 import transactionRouter from './transactionRoutes';
 import analyticsRouter from './analyticsRoutes';
 import swaggerRouter from './swaggerRoutes';
+import exchangeRatesRouter from './exchangeRatesRoutes';
 
 /**
  * Sets up all application routes
@@ -14,9 +15,11 @@ import swaggerRouter from './swaggerRoutes';
  */
 export const setupRoutes = (router: Router): void => {
     router.use('/users', userRouter);
+
     router.use('/transactions', verifyToken, transactionRouter);
     router.use('/analytics', verifyToken, analyticsRouter);
     router.use('/swagger', verifyToken, swaggerRouter);
 
     router.use('/info', infoRouter);
+    router.use('/exchange-rates', exchangeRatesRouter);
 };
