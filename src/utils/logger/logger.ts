@@ -12,7 +12,7 @@ export const logger: Logger = createLogger({
         format.printf((info) => {
             const { timestamp, level, message } = info;
             return `${timestamp} [${level.toUpperCase()}]: ${message}`;
-        }),
+        })
     ),
     transports: [
         new transports.Console(),

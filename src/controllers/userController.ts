@@ -19,13 +19,13 @@ import { UserJwtPayload } from '../interfaces/userJwtPayload';
 export const registerUser = async (
     req: Request,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
 ) => {
     const { name, email, password } = req.body;
 
     if (!name || !email || !password) {
         return next(
-            new ResultError('Name, email, and password are required', 400),
+            new ResultError('Name, email, and password are required', 400)
         );
     }
 
@@ -39,7 +39,7 @@ export const registerUser = async (
 
         const hashedPassword = await bcrypt.hash(
             password,
-            constants.BCRYPT_SALT_ROUNDS,
+            constants.BCRYPT_SALT_ROUNDS
         );
 
         const newUser = await dbClient.user.create({
@@ -79,7 +79,7 @@ export const registerUser = async (
 export const loginUser = async (
     req: Request,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
 ) => {
     const { email, password } = req.body;
 

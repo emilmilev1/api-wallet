@@ -9,7 +9,7 @@ import { ResultError } from '../utils/customErrors/resultError';
 export const exchangeRatesController = async (
     req: Request,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
 ) => {
     const { currency, symbols } = req.query;
 
@@ -19,7 +19,7 @@ export const exchangeRatesController = async (
 
     if (!symbols || typeof symbols !== 'string') {
         return next(
-            new ResultError('Target currencies (symbols) are required', 400),
+            new ResultError('Target currencies (symbols) are required', 400)
         );
     }
 
@@ -28,7 +28,7 @@ export const exchangeRatesController = async (
 
         const exchangeRates = await fetchExchangeRatesData(
             currency,
-            targetSymbols,
+            targetSymbols
         );
         if (!exchangeRates) {
             res.status(500).json({ error: 'Failed to fetch exchange rates' });

@@ -11,7 +11,7 @@ import { TransactionType } from '../types/transactionType';
 export const getTransactions = async (
     req: Request,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
 ) => {
     const { type, category, startDate, endDate, sortBy, sortOrder } = req.query;
     const userId = req.user.id;
@@ -65,13 +65,13 @@ export const getTransactions = async (
 export const createTransaction = async (
     req: Request,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
 ) => {
     const { type, amount, category, date, description, userId } = req.body;
 
     if (!type || !amount || !category || !date || !userId) {
         return next(
-            new ResultError('All fields except description are required', 400),
+            new ResultError('All fields except description are required', 400)
         );
     }
 
@@ -107,7 +107,7 @@ export const createTransaction = async (
 export const updateTransaction = async (
     req: Request,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
 ) => {
     const { id } = req.params;
     const { type, amount, category, date, description } = req.body;
@@ -151,7 +151,7 @@ export const updateTransaction = async (
 export const deleteTransaction = async (
     req: Request,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
 ) => {
     const { id } = req.params;
 

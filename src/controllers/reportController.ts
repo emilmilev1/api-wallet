@@ -10,7 +10,7 @@ import { fetchExchangeRatesData } from '../services/fetchExchangeRatesData';
 export const downloadTransactionsReport = async (
     req: Request,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
 ) => {
     const { baseCurrency, symbols } = req.query;
 
@@ -20,7 +20,7 @@ export const downloadTransactionsReport = async (
 
     if (!symbols || typeof symbols !== 'string') {
         return next(
-            new ResultError('Target currencies (symbols) are required', 400),
+            new ResultError('Target currencies (symbols) are required', 400)
         );
     }
 
@@ -29,7 +29,7 @@ export const downloadTransactionsReport = async (
 
         const exchangeRates = await fetchExchangeRatesData(
             baseCurrency,
-            targetSymbols,
+            targetSymbols
         );
 
         if (!exchangeRates || Object.keys(exchangeRates).length === 0) {

@@ -10,7 +10,7 @@ import { AverageExpense } from '../interfaces/averageExpense';
 export const getFinancialTips = async (
     req: Request,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
 ) => {
     try {
         const financialTips: string[] = [
@@ -27,7 +27,7 @@ export const getFinancialTips = async (
         ];
 
         const randomIndex: number = Math.floor(
-            Math.random() * financialTips.length,
+            Math.random() * financialTips.length
         );
         const randomTip: string = financialTips[randomIndex];
 
@@ -49,7 +49,7 @@ export const getFinancialTips = async (
 export const getAverageExpenses = async (
     req: Request,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
 ) => {
     try {
         const averages = await dbClient.transaction.groupBy({
@@ -67,7 +67,7 @@ export const getAverageExpenses = async (
                 }) => ({
                     category: avg.category,
                     averageAmount: avg._avg.amount || 0,
-                }),
+                })
             ),
         };
 

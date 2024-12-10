@@ -9,7 +9,7 @@ import { ExchangeRatesResponse } from '../interfaces/exchangeRatesResponse';
  */
 export const fetchExchangeRatesData = async (
     baseCurrency: string,
-    symbols: string[],
+    symbols: string[]
 ): Promise<Record<string, number>> => {
     try {
         const response = await axios.get<ExchangeRatesResponse>(
@@ -19,7 +19,7 @@ export const fetchExchangeRatesData = async (
                     access_key: process.env.EXCHANGE_RATES_API_KEY,
                     params: { base: baseCurrency, symbols: symbols.join(',') },
                 },
-            },
+            }
         );
 
         if (response.status !== 200) {
@@ -37,7 +37,7 @@ export const fetchExchangeRatesData = async (
 
         throw new ResultError(
             err.message || 'Error fetching exchange rates',
-            500,
+            500
         );
     }
 };

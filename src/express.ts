@@ -34,7 +34,7 @@ export const expressConfig = (): Application => {
                 },
             },
             referrerPolicy: { policy: 'strict-origin' },
-        }),
+        })
     );
 
     app.use(
@@ -44,7 +44,7 @@ export const expressConfig = (): Application => {
             methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
             allowedHeaders: ['Content-Type', 'Authorization'],
             exposedHeaders: ['Authorization'],
-        }),
+        })
     );
 
     app.use(bodyParser.json());

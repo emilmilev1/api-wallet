@@ -10,7 +10,7 @@ const secret = process.env.JWT_SECRET as string;
 export const verifyToken = async (
     req: Request,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
 ): Promise<void> => {
     const authHeader = req.headers.authorization;
 
@@ -28,7 +28,7 @@ export const verifyToken = async (
         });
         if (!user) {
             return next(
-                new ResultError('User not found or invalid token', 404),
+                new ResultError('User not found or invalid token', 404)
             );
         }
 

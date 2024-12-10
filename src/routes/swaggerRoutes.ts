@@ -15,8 +15,8 @@ swaggerRouter.use(
     swaggerObj.swaggerUi.serve,
     swaggerObj.swaggerUi.setup(
         swaggerObj.swaggerDocs,
-        swaggerObj.swaggerUiOptions,
-    ),
+        swaggerObj.swaggerUiOptions
+    )
 );
 
 /**

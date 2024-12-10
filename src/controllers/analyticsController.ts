@@ -14,7 +14,7 @@ import redisClient from '../redis/redisClient';
 export const getBalance = async (
     req: Request,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
 ) => {
     const userId = req.user.id;
 
@@ -45,7 +45,7 @@ export const getBalance = async (
 export const getCategoryStats = async (
     req: Request,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
 ) => {
     const userId = req.user.id;
     const cacheKey = `categoryStats:${userId}`;
@@ -67,7 +67,7 @@ export const getCategoryStats = async (
             (stat: { category: string; _sum: { amount: number | null } }) => ({
                 category: stat.category,
                 totalAmount: stat._sum.amount || 0,
-            }),
+            })
         );
 
         await redisClient.set(cacheKey, JSON.stringify(formattedStats), {
@@ -87,7 +87,7 @@ export const getCategoryStats = async (
 export const getMonthlySummary = async (
     req: Request,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
 ) => {
     const userId = req.user.id;
 
@@ -114,7 +114,7 @@ export const getMonthlySummary = async (
 
                 return acc;
             },
-            {} as MonthlySummary,
+            {} as MonthlySummary
         );
 
         res.status(200).json({ monthlySummary: summary });
