@@ -2,15 +2,18 @@ export default {
     preset: 'ts-jest',
     testEnvironment: 'node',
     rootDir: './',
-    testMatch: ['<rootDir>/tests/**/*.test.ts'],
+    testMatch: [
+        '<rootDir>/tests/unit/**/*.test.ts',
+        '<rootDir>/tests/e2e/**/*.e2e.test.ts',
+    ],
     collectCoverage: true,
     collectCoverageFrom: ['src/**/*.ts'],
     coverageDirectory: 'coverage',
     coverageReporters: ['text', 'lcov'],
-    globals: {
-        'ts-jest': {
-            isolatedModules: true,
-            tsconfig: 'tsconfig.json',
-        },
+    transform: {
+        '^.+\\.ts$': [
+            'ts-jest',
+            { isolatedModules: true, tsconfig: 'tsconfig.json' },
+        ],
     },
 };

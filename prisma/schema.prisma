@@ -33,7 +33,7 @@ model Transaction {
   description String?
   userId      String
 
-  user        User     @relation(fields: [userId], references: [id])
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 enum TransactionType {

@@ -53,7 +53,7 @@ export const getCategoryStats = async (
     try {
         const cachedStats = await redisClient.get(cacheKey);
         if (cachedStats) {
-            return res.status(200).json({ stats: JSON.parse(cachedStats) });
+            res.status(200).json({ stats: JSON.parse(cachedStats) });
         }
 
         const stats = await dbClient.transaction.groupBy({

@@ -1,13 +1,12 @@
 {
     "name": "api-wallet",
     "version": "1.0.0",
-    "type": "module",
     "main": "src/server.ts",
     "scripts": {
         "build": "tsc",
         "start": "node dist/server.js",
         "dev": "nodemon --exec tsx src/server.ts",
-        "test": "jest",
+        "test": "jest --detectOpenHandles",
         "test:watch": "jest --watch",
         "test:coverage": "jest --coverage",
         "lint": "eslint . --ext .ts",

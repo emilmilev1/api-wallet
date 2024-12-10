@@ -10,7 +10,6 @@ const exchangeRatesRouter = express.Router();
  */
 exchangeRatesRouter.get('/', exchangeRatesController);
 
-// Export the router
 /**
  * @description Download transactions report in CSV format
  * @route GET /api/v1/report

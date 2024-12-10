@@ -1,12 +1,12 @@
-import dbClient from '../src/database/dbClient';
+import dbClient from '../../src/database/dbClient';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
-import { registerUser, loginUser } from '../src/controllers/userController';
-import { ResultError } from '../src/utils/customErrors/resultError';
+import { registerUser, loginUser } from '../../src/controllers/userController';
+import { ResultError } from '../../src/utils/customErrors/resultError';
 import { Request, Response, NextFunction } from 'express';
 
-jest.mock('../src/database/dbClient', () => ({
+jest.mock('../../src/database/dbClient', () => ({
     user: {
         findUnique: jest.fn(),
         create: jest.fn(),
