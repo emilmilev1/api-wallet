@@ -5,6 +5,7 @@ import { Transaction } from '../interfaces/transaction';
 import { TransactionType } from '../types/transactionType';
 import { CategoryStats } from '../interfaces/categoryStats';
 import { MonthlySummary } from '../interfaces/monthlySummary';
+import redisClient from '../redis/redisClient';
 
 /**
  * @description Get current balance
@@ -47,8 +48,14 @@ export const getCategoryStats = async (
     next: NextFunction,
 ) => {
     const userId = req.user.id;
+    const cacheKey = `categoryStats:${userId}`;
 
     try {
+        const cachedStats = await redisClient.get(cacheKey);
+        if (cachedStats) {
+            return res.status(200).json({ stats: JSON.parse(cachedStats) });
+        }
+
         const stats = await dbClient.transaction.groupBy({
             by: ['category'],
             where: { userId, type: 'EXPENSE' as TransactionType },
@@ -62,6 +69,10 @@ export const getCategoryStats = async (
                 totalAmount: stat._sum.amount || 0,
             }),
         );
+
+        await redisClient.set(cacheKey, JSON.stringify(formattedStats), {
+            EX: 3600,
+        }); // It will expire in 1 hour.
 
         res.status(200).json({ stats: formattedStats });
     } catch (error) {
