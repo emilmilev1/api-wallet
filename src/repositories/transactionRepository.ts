@@ -14,7 +14,7 @@ export class TransactionRepository implements ITransactionRepository {
      * @param sortOrder
      * @returns
      */
-    async findTransactions(
+    async getTransactions(
         whereClause: object,
         sortBy: string,
         sortOrder: 'asc' | 'desc'

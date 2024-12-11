@@ -5,7 +5,7 @@ import {
 import { Transaction } from './transaction';
 
 export interface ITransactionRepository {
-    findTransactions(
+    getTransactions(
         whereClause: object,
         sortBy: string,
         sortOrder: 'asc' | 'desc'

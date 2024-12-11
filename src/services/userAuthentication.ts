@@ -8,16 +8,18 @@ import { UserJwtPayload } from '../interfaces/userJwtPayload';
 import { CreateUserDTO } from '../models/user.dto';
 import { IUserAuthentication } from '../interfaces/userAuthentication.interface';
 import { UserRepository } from '../repositories/userRepository';
-import { IUserRepository } from '../interfaces/userRepository.interface';
-
-// DI
-const userRepository: IUserRepository = new UserRepository();
 
 export class UserAuthenticationService implements IUserAuthentication {
+    // DI
+    private userRepository: UserRepository;
+
+    constructor(userRepository: UserRepository) {
+        this.userRepository = userRepository;
+    }
+
     async registerUser(createUserDto: CreateUserDTO): Promise<UserDb> {
-        const existingUser: User | null = await userRepository.findUserByEmail(
-            createUserDto.email
-        );
+        const existingUser: User | null =
+            await this.userRepository.findUserByEmail(createUserDto.email);
         if (existingUser) {
             throw new ResultError('User already exists', 409);
         }
@@ -28,11 +30,12 @@ export class UserAuthenticationService implements IUserAuthentication {
         );
         createUserDto.password = hashedPassword;
 
-        return await userRepository.createUser(createUserDto);
+        return await this.userRepository.createUser(createUserDto);
     }
 
     async loginUser(email: string, password: string): Promise<string> {
-        const user: User | null = await userRepository.findUserByEmail(email);
+        const user: User | null =
+            await this.userRepository.findUserByEmail(email);
         if (!user) {
             throw new ResultError('Invalid email or password', 401);
         }

@@ -27,8 +27,8 @@ export class CreateTransactionDTO {
 
 export class UpdateTransactionDTO {
     type?: TransactionType;
-    amount?: number;
     category?: string;
+    amount?: number;
     date?: Date;
     description?: string;
 }

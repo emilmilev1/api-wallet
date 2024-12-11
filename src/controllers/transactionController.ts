@@ -5,12 +5,12 @@ import {
     CreateTransactionDTO,
     UpdateTransactionDTO,
 } from '../models/transaction.dto';
-import { ITransactionRepository } from '../interfaces/transactionRepository.interface';
-import { TransactionRepository } from '../repositories/transactionRepository';
+import { TransactionQueryDTO } from '../models/transactionQuery.dto';
+import { getService } from '../di/container';
+import { ITransactionService } from '../interfaces/transactionService.interface';
 
-// DI
-const transactionRepository: ITransactionRepository =
-    new TransactionRepository();
+const transactionService =
+    getService<ITransactionService>('TransactionService');
 
 /**
  * @description Get filtered and sorted transactions
@@ -22,42 +22,26 @@ export const readTransactionHandler = async (
     next: NextFunction
 ) => {
     const { type, category, startDate, endDate, sortBy, sortOrder } = req.query;
+
+    if (!req.user) {
+        return next(new ResultError('User not authenticated', 401));
+    }
+
     const userId = req.user.id;
 
+    const queryDto = new TransactionQueryDTO({
+        userId,
+        type: type as TransactionType,
+        category: category as string,
+        startDate: startDate as string,
+        endDate: endDate as string,
+        sortBy: sortBy as string,
+        sortOrder: sortOrder as 'asc' | 'desc',
+    });
+
     try {
-        const whereClause: {
-            userId: string;
-            type?: TransactionType;
-            category?: string;
-            date?: {
-                gte?: Date;
-                lte?: Date;
-            };
-        } = { userId };
-
-        if (type) {
-            if (!['INCOME', 'EXPENSE'].includes(type as TransactionType)) {
-                return next(new ResultError('Invalid transaction type', 400));
-            }
-            whereClause.type = type as TransactionType;
-        }
-
-        if (category) {
-            whereClause.category = category as string;
-        }
-
-        if (startDate || endDate) {
-            whereClause.date = {
-                ...(startDate && { gte: new Date(startDate as string) }),
-                ...(endDate && { lte: new Date(endDate as string) }),
-            };
-        }
-
-        const transactions = await transactionRepository.findTransactions(
-            whereClause,
-            sortBy as string,
-            (sortOrder === 'desc' ? 'desc' : 'asc') as 'asc' | 'desc'
-        );
+        const transactions =
+            await transactionService.listTransactionsService(queryDto);
 
         res.status(200).json({ transactions });
     } catch (error) {
@@ -87,16 +71,21 @@ export const createTransactionHandler = async (
         );
     }
 
+    if (!req.user) {
+        return next(new ResultError('User not authenticated', 401));
+    }
+
+    const userId = req.user.id;
+    if (!userId) {
+        return next(new ResultError('Unauthorized user', 403));
+    }
+
     try {
-        const userId = req.user.id;
-        if (!userId) {
-            return next(new ResultError('Unauthorized user', 403));
-        }
-
-        createTransactionDto.date = new Date(createTransactionDto.date);
-
         const newTransaction =
-            await transactionRepository.createTransaction(createTransactionDto);
+            await transactionService.createTransactionService(
+                userId,
+                createTransactionDto
+            );
 
         res.status(201).json({
             message: 'Transaction created successfully',
@@ -116,28 +105,20 @@ export const updateTransactionHandler = async (
     res: Response,
     next: NextFunction
 ) => {
+    if (!req.user) {
+        return next(new ResultError('User not authenticated', 401));
+    }
+    const userId = req.user.id;
+
     const { id } = req.params;
     const updateTransactionDto: UpdateTransactionDTO = req.body;
 
     try {
-        const existingTransaction =
-            await transactionRepository.findTransactionById(id);
-        if (!existingTransaction) {
-            return next(new ResultError('Transaction not found', 404));
-        }
-
-        if (existingTransaction.userId !== req.user.id) {
-            return next(new ResultError('Unauthorized user', 403));
-        }
-
-        if (updateTransactionDto.date) {
-            updateTransactionDto.date = new Date(updateTransactionDto.date);
-        }
-
         const updatedTransaction =
-            await transactionRepository.updateTransaction(
+            await transactionService.updateTransactionService(
                 id,
-                updateTransactionDto
+                updateTransactionDto,
+                userId
             );
 
         res.status(200).json({
@@ -158,20 +139,15 @@ export const deleteTransactionHandler = async (
     res: Response,
     next: NextFunction
 ) => {
+    if (!req.user) {
+        return next(new ResultError('User not authenticated', 401));
+    }
+
+    const userId = req.user.id;
     const { id } = req.params;
 
     try {
-        const existingTransaction =
-            await transactionRepository.findTransactionById(id);
-        if (!existingTransaction) {
-            return next(new ResultError('Transaction not found', 404));
-        }
-
-        if (existingTransaction.userId !== req.user.id) {
-            return next(new ResultError('Unauthorized user', 403));
-        }
-
-        await transactionRepository.deleteTransaction(id);
+        await transactionService.deleteTransactionService(id, userId);
 
         res.status(200).json({ message: 'Transaction deleted successfully' });
     } catch (error) {

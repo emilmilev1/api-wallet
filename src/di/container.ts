@@ -1,21 +1,42 @@
+import { TransactionRepository } from '../repositories/transactionRepository';
+import { UserRepository } from '../repositories/userRepository';
+import { TransactionService } from '../services/transaction';
 import { UserAuthenticationService } from '../services/userAuthentication';
 import { ResultError } from '../utils/customErrors/resultError';
 
-const container = new Map<string, any>();
+const container = new Map<string, () => any>();
+
+// Register factories
+container.set('TransactionRepository', () => new TransactionRepository());
+container.set('UserRepository', () => new UserRepository());
 
 // Register services
-container.set('UserAuthenticationService', new UserAuthenticationService());
+container.set(
+    'TransactionService',
+    () =>
+        new TransactionService(
+            getService<TransactionRepository>('TransactionRepository')
+        )
+);
+container.set(
+    'UserAuthenticationService',
+    () =>
+        new UserAuthenticationService(
+            getService<UserRepository>('UserRepository')
+        )
+);
 
-// Retrieve services
+// Lazy initialization with factories
 export const getService = <T>(serviceName: string): T => {
-    const service = container.get(serviceName);
+    const serviceFactory = container.get(serviceName);
 
-    if (!service) {
+    if (!serviceFactory) {
         throw new ResultError(
             `Service ${serviceName} not found in DI container`,
             404
         );
     }
 
-    return service as T;
+    // Create or return the service instance
+    return serviceFactory() as T;
 };
