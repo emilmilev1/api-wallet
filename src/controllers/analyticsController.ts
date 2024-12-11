@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { ResultError } from '../utils/customErrors/resultError';
-import { Transaction } from '../interfaces/transaction';
+import { TransactionType } from '@prisma/client';
 import { CategoryStats } from '../interfaces/categoryStats';
 import { MonthlySummary } from '../interfaces/monthlySummary';
 import { getCache, setCache } from '../utils/cache/cacheUtils';
@@ -19,6 +19,9 @@ export const getBalance = async (
     res: Response,
     next: NextFunction
 ) => {
+    if (!req.user) {
+        return next(new ResultError('User not authenticated', 401));
+    }
     const userId = req.user.id;
 
     try {
@@ -44,6 +47,9 @@ export const getCategoryStats = async (
     res: Response,
     next: NextFunction
 ) => {
+    if (!req.user) {
+        return next(new ResultError('User not authenticated', 401));
+    }
     const userId = req.user.id;
     const cacheKey = `categoryStats:${userId}`;
 
@@ -51,6 +57,7 @@ export const getCategoryStats = async (
         const cachedStats = await getCache(cacheKey);
         if (cachedStats) {
             res.status(200).json({ stats: JSON.parse(cachedStats) });
+            return;
         }
 
         const stats = await getExpenseStatsByCategory(userId);
@@ -80,13 +87,23 @@ export const getMonthlySummary = async (
     res: Response,
     next: NextFunction
 ) => {
+    if (!req.user) {
+        return next(new ResultError('User not authenticated', 401));
+    }
     const userId = req.user.id;
 
     try {
         const transactions = await getAllTransactions(userId);
 
         const summary: MonthlySummary = transactions.reduce(
-            (acc: MonthlySummary, transaction: Transaction) => {
+            (
+                acc: MonthlySummary,
+                transaction: {
+                    type: TransactionType;
+                    amount: number;
+                    date: Date;
+                }
+            ) => {
                 const month = transaction.date.toISOString().slice(0, 7);
 
                 if (!acc[month]) {

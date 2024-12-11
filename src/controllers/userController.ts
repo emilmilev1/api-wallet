@@ -28,9 +28,11 @@ export const registerUser = async (
         !createUserDto.email ||
         !createUserDto.password
     ) {
-        return next(
-            new ResultError('Name, email, and password are required', 400)
+        const error = new ResultError(
+            'Name, email, and password are required',
+            400
         );
+        return next(error);
     }
 
     try {
@@ -60,7 +62,8 @@ export const loginUser = async (
     const userDto: UserDTO = req.body;
 
     if (!userDto.email || !userDto.password) {
-        return next(new ResultError('Email and password are required', 400));
+        const error = new ResultError('Email and password are required', 400);
+        return next(error);
     }
 
     try {
