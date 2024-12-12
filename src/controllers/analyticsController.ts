@@ -1,14 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 import { ResultError } from '../utils/customErrors/resultError';
 import { TransactionType } from '@prisma/client';
-import { CategoryStats } from '../interfaces/categoryStats';
 import { MonthlySummary } from '../interfaces/monthlySummary';
-import { getCache, setCache } from '../utils/cache/cacheUtils';
-import {
-    getAggregateAmount,
-    getAllTransactions,
-    getExpenseStatsByCategory,
-} from '../repositories/analyticsRepository';
+import { getService } from '../di/container';
+import { IAnalyticsService } from '../interfaces/analyticsService.interface';
+
+const analyticsService = getService<IAnalyticsService>('AnalyticsService');
 
 /**
  * @description Get current balance
@@ -25,12 +22,10 @@ export const getBalance = async (
     const userId = req.user.id;
 
     try {
-        const [income, expense] = await Promise.all([
-            getAggregateAmount(userId, 'INCOME'),
-            getAggregateAmount(userId, 'EXPENSE'),
-        ]);
-
-        const currentBalance = income - expense;
+        const currentBalance = await analyticsService.getBalanceService(
+            userId,
+            ['INCOME', 'EXPENSE']
+        );
 
         res.status(200).json({ currentBalance });
     } catch (error) {
@@ -51,26 +46,10 @@ export const getCategoryStats = async (
         return next(new ResultError('User not authenticated', 401));
     }
     const userId = req.user.id;
-    const cacheKey = `categoryStats:${userId}`;
 
     try {
-        const cachedStats = await getCache(cacheKey);
-        if (cachedStats) {
-            res.status(200).json({ stats: JSON.parse(cachedStats) });
-            return;
-        }
-
-        const stats = await getExpenseStatsByCategory(userId);
-
-        const formattedStats: CategoryStats[] = stats.map(
-            (stat: { category: any; _sum: { amount: any } }) => ({
-                category: stat.category,
-                totalAmount: stat._sum.amount || 0,
-            })
-        );
-
-        // Cache will expire in 1 hour.
-        await setCache(cacheKey, JSON.stringify(formattedStats), 3600);
+        const formattedStats =
+            await analyticsService.getCategoryStatsService(userId);
 
         res.status(200).json({ stats: formattedStats });
     } catch (error) {
@@ -93,33 +72,8 @@ export const getMonthlySummary = async (
     const userId = req.user.id;
 
     try {
-        const transactions = await getAllTransactions(userId);
-
-        const summary: MonthlySummary = transactions.reduce(
-            (
-                acc: MonthlySummary,
-                transaction: {
-                    type: TransactionType;
-                    amount: number;
-                    date: Date;
-                }
-            ) => {
-                const month = transaction.date.toISOString().slice(0, 7);
-
-                if (!acc[month]) {
-                    acc[month] = { income: 0, expense: 0 };
-                }
-
-                if (transaction.type === 'INCOME') {
-                    acc[month].income += transaction.amount;
-                } else if (transaction.type === 'EXPENSE') {
-                    acc[month].expense += transaction.amount;
-                }
-
-                return acc;
-            },
-            {} as MonthlySummary
-        );
+        const summary =
+            await analyticsService.getMonthlySummaryTransactionsService(userId);
 
         res.status(200).json({ monthlySummary: summary });
     } catch (error) {

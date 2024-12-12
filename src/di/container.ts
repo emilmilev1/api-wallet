@@ -1,16 +1,26 @@
+import { AnalyticsRepository } from '../repositories/analyticsRepository';
 import { TransactionRepository } from '../repositories/transactionRepository';
 import { UserRepository } from '../repositories/userRepository';
-import { TransactionService } from '../services/transaction';
-import { UserAuthenticationService } from '../services/userAuthentication';
+import { AnalyticsService } from '../services/analyticsService';
+import { TransactionService } from '../services/transactionService';
+import { UserAuthenticationService } from '../services/userAuthenticationService';
 import { ResultError } from '../utils/customErrors/resultError';
 
 const container = new Map<string, () => any>();
 
 // Register factories
-container.set('TransactionRepository', () => new TransactionRepository());
 container.set('UserRepository', () => new UserRepository());
+container.set('TransactionRepository', () => new TransactionRepository());
+container.set('AnalyticsRepository', () => new AnalyticsRepository());
 
 // Register services
+container.set(
+    'UserAuthenticationService',
+    () =>
+        new UserAuthenticationService(
+            getService<UserRepository>('UserRepository')
+        )
+);
 container.set(
     'TransactionService',
     () =>
@@ -19,10 +29,10 @@ container.set(
         )
 );
 container.set(
-    'UserAuthenticationService',
+    'AnalyticsService',
     () =>
-        new UserAuthenticationService(
-            getService<UserRepository>('UserRepository')
+        new AnalyticsService(
+            getService<AnalyticsRepository>('AnalyticsRepository')
         )
 );
 
