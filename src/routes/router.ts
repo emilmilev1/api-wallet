@@ -18,7 +18,7 @@ export const setupRoutes = (router: Router): void => {
 
     router.use('/transactions', verifyToken, transactionRouter);
     router.use('/analytics', verifyToken, analyticsRouter);
-    router.use('/swagger', verifyToken, swaggerRouter);
+    router.use('/swagger', swaggerRouter);
 
     router.use('/info', infoRouter);
     router.use('/exchange-rates', exchangeRatesRouter);

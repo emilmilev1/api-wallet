@@ -1,19 +1,30 @@
-import { User } from '@prisma/client/wasm';
+import { User, TransactionType } from '@prisma/client/wasm';
 import dbClient from '../src/database/dbClient';
+import bcrypt from 'bcrypt';
 
 const seedTransactions = async (): Promise<void> => {
     try {
-        const users: User[] = await dbClient.user.findMany({
-            select: {
-                id: true,
-            },
-        });
+        const users: User[] = [];
+
+        for (let i = 0; i < 10; i++) {
+            const hashedPassword = await bcrypt.hash('12345678', 10);
+
+            const user = await dbClient.user.create({
+                data: {
+                    email: `user${i}@abv.bg` as string,
+                    name: `User ${i}` as string,
+                    password: hashedPassword as string,
+                },
+            });
+
+            users.push(user);
+        }
 
         const userIds: string[] = users.map((user) => user.id);
 
         const transactions = [
             {
-                type: 'INCOME',
+                type: 'INCOME' as TransactionType,
                 amount: 500,
                 category: 'Salary',
                 date: new Date('2024-12-01'),
@@ -21,7 +32,7 @@ const seedTransactions = async (): Promise<void> => {
                 userId: userIds[0],
             },
             {
-                type: 'EXPENSE',
+                type: 'EXPENSE' as TransactionType,
                 amount: 100,
                 category: 'Food',
                 date: new Date('2024-12-02'),
@@ -29,7 +40,7 @@ const seedTransactions = async (): Promise<void> => {
                 userId: userIds[0],
             },
             {
-                type: 'INCOME',
+                type: 'INCOME' as TransactionType,
                 amount: 1200,
                 category: 'Salary',
                 date: new Date('2024-12-03'),
@@ -37,7 +48,7 @@ const seedTransactions = async (): Promise<void> => {
                 userId: userIds[1],
             },
             {
-                type: 'EXPENSE',
+                type: 'EXPENSE' as TransactionType,
                 amount: 200,
                 category: 'Transport',
                 date: new Date('2024-12-04'),
@@ -45,7 +56,7 @@ const seedTransactions = async (): Promise<void> => {
                 userId: userIds[1],
             },
             {
-                type: 'INCOME',
+                type: 'INCOME' as TransactionType,
                 amount: 800,
                 category: 'Freelance',
                 date: new Date('2024-12-05'),
@@ -53,7 +64,7 @@ const seedTransactions = async (): Promise<void> => {
                 userId: userIds[2],
             },
             {
-                type: 'EXPENSE',
+                type: 'EXPENSE' as TransactionType,
                 amount: 50,
                 category: 'Entertainment',
                 date: new Date('2024-12-06'),
@@ -61,7 +72,7 @@ const seedTransactions = async (): Promise<void> => {
                 userId: userIds[2],
             },
             {
-                type: 'INCOME',
+                type: 'INCOME' as TransactionType,
                 amount: 900,
                 category: 'Salary',
                 date: new Date('2024-12-07'),
@@ -69,7 +80,7 @@ const seedTransactions = async (): Promise<void> => {
                 userId: userIds[3],
             },
             {
-                type: 'EXPENSE',
+                type: 'EXPENSE' as TransactionType,
                 amount: 150,
                 category: 'Health',
                 date: new Date('2024-12-08'),
@@ -77,7 +88,7 @@ const seedTransactions = async (): Promise<void> => {
                 userId: userIds[3],
             },
             {
-                type: 'INCOME',
+                type: 'INCOME' as TransactionType,
                 amount: 1000,
                 category: 'Investment',
                 date: new Date('2024-12-09'),
@@ -85,7 +96,7 @@ const seedTransactions = async (): Promise<void> => {
                 userId: userIds[4],
             },
             {
-                type: 'EXPENSE',
+                type: 'EXPENSE' as TransactionType,
                 amount: 300,
                 category: 'Shopping',
                 date: new Date('2024-12-10'),

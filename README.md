@@ -8,7 +8,16 @@ Wallet Api helps you control your incomes and expenses.
 
 ### PostgreSQL Connection String
 ```
+Main Database
 DATABASE_URL="postgresql://user:password@localhost:5432/dbname"
+
+Tests Database
+DATABASE_URL="postgresql://user:password@localhost:5432/dbname-Test"
+```
+
+### Server base URL
+```
+BASE_URL="http://localhost:9000/api/v1"
 ```
 
 ### Ports

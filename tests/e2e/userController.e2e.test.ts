@@ -4,7 +4,7 @@ import dbClient from '../../src/database/dbClient';
 
 dotenv.config();
 
-const baseUrl = process.env.BASE_URL || 'http://localhost:9000';
+const baseUrl = process.env.BASE_URL || 'http://localhost:9000/api/v1';
 
 describe('User Authentication E2E Tests', () => {
     beforeAll(() => {});
@@ -18,7 +18,7 @@ describe('User Authentication E2E Tests', () => {
         return Math.floor(Math.random() * 10000);
     }
 
-    describe('POST /api/v1/users/register', () => {
+    describe('POST /users/register', () => {
         it('should successfully register a new user', async () => {
             const randomNumber = generateRandomNumber();
 
@@ -29,7 +29,7 @@ describe('User Authentication E2E Tests', () => {
             };
 
             const response = await request(baseUrl)
-                .post('/api/v1/users/register')
+                .post('/users/register')
                 .send(newUser);
 
             expect(response.status).toBe(201);
@@ -48,7 +48,7 @@ describe('User Authentication E2E Tests', () => {
             };
 
             const response = await request(baseUrl)
-                .post('/api/v1/users/register')
+                .post('/users/register')
                 .send(existingUser);
 
             expect(response.status).toBe(409);
@@ -57,7 +57,7 @@ describe('User Authentication E2E Tests', () => {
 
         it('should return error if name, email, or password are missing', async () => {
             const response = await request(baseUrl)
-                .post('/api/v1/users/register')
+                .post('/users/register')
                 .send({ email: 'test@example.com' });
 
             expect(response.status).toBe(400);
@@ -67,20 +67,20 @@ describe('User Authentication E2E Tests', () => {
         });
     });
 
-    describe('POST /api/v1/users/login', () => {
+    describe('POST /users/login', () => {
         it('should successfully login and return a token', async () => {
             const user = {
                 id: '1',
-                email: 'test@example.com',
+                email: 'testuser@example.com',
                 name: 'Test User',
-                password: 'hashedPassword',
+                password: 'testpassword',
             };
 
-            const validPassword = 'password123';
+            const validPassword = 'testpassword';
 
             // mock bcrypt and JWT
             const response = await request(baseUrl)
-                .post('/api/v1/users/login')
+                .post('/users/login')
                 .send({ email: user.email, password: validPassword });
 
             expect(response.status).toBe(200);
@@ -97,7 +97,7 @@ describe('User Authentication E2E Tests', () => {
             };
 
             const response = await request(baseUrl)
-                .post('/api/v1/users/login')
+                .post('/users/login')
                 .send(nonExistentUser);
 
             expect(response.status).toBe(401);
@@ -114,7 +114,7 @@ describe('User Authentication E2E Tests', () => {
             const invalidPassword = 'wrongPassword';
 
             const response = await request(baseUrl)
-                .post('/api/v1/users/login')
+                .post('/users/login')
                 .send({ email: user.email, password: invalidPassword });
 
             expect(response.status).toBe(401);
@@ -123,7 +123,7 @@ describe('User Authentication E2E Tests', () => {
 
         it('should return error if email or password are missing', async () => {
             const response = await request(baseUrl)
-                .post('/api/v1/users/login')
+                .post('/users/login')
                 .send({ email: 'test@example.com' });
 
             expect(response.status).toBe(400);

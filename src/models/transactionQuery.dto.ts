@@ -2,7 +2,7 @@ import { TransactionType } from '../types/transactionType';
 
 export class TransactionQueryDTO {
     userId: string;
-    type?: TransactionType;
+    type?: string;
     category?: string;
     startDate?: string;
     endDate?: string;
@@ -19,7 +19,7 @@ export class TransactionQueryDTO {
         sortOrder,
     }: {
         userId: string;
-        type?: TransactionType;
+        type?: string;
         category?: string;
         startDate?: string;
         endDate?: string;

@@ -2,7 +2,7 @@ import { TransactionType } from '../types/transactionType';
 
 export interface Transaction {
     id: string;
-    type: TransactionType;
+    type: string;
     amount: number;
     category: string;
     date: Date;
