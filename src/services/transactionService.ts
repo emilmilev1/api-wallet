@@ -1,7 +1,7 @@
 import { Transaction } from '../interfaces/transaction';
 import { ResultError } from '../utils/customErrors/resultError';
 import { TransactionType } from '../types/transactionType';
-import { ITransactionService } from '../interfaces/transactionService.interface';
+import { ITransactionService } from '../interfaces/service/transactionService.interface';
 import { TransactionQueryDTO } from '../models/transactionQuery.dto';
 import { TransactionRepository } from '../repositories/transactionRepository';
 import {

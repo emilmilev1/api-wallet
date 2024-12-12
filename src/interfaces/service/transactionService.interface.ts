@@ -1,9 +1,9 @@
 import {
     CreateTransactionDTO,
     UpdateTransactionDTO,
-} from '../models/transaction.dto';
-import { TransactionQueryDTO } from '../models/transactionQuery.dto';
-import { Transaction } from './transaction';
+} from '../../models/transaction.dto';
+import { TransactionQueryDTO } from '../../models/transactionQuery.dto';
+import { Transaction } from '../transaction';
 
 export interface ITransactionService {
     listTransactionsService(

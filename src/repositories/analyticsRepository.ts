@@ -1,5 +1,5 @@
 import dbClient from '../database/dbClient';
-import { IAnalyticsRepository } from '../interfaces/analyticsRepository.interface';
+import { IAnalyticsRepository } from '../interfaces/repository/analyticsRepository.interface';
 import { CategoryStats } from '../interfaces/categoryStats';
 import { Transaction } from '../interfaces/transaction';
 import { TransactionType } from '../types/transactionType';

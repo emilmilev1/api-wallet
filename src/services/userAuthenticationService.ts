@@ -6,10 +6,10 @@ import { UserDb } from '../types/userDb';
 import { User } from '../interfaces/user';
 import { UserJwtPayload } from '../interfaces/userJwtPayload';
 import { CreateUserDTO } from '../models/user.dto';
-import { IUserAuthentication } from '../interfaces/userAuthentication.interface';
 import { UserRepository } from '../repositories/userRepository';
+import { IUserAuthenticationService } from '../interfaces/service/userAuthenticationService.interface';
 
-export class UserAuthenticationService implements IUserAuthentication {
+export class UserAuthenticationService implements IUserAuthenticationService {
     // DI
     private userRepository: UserRepository;
 

@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
-import { Parser } from 'json2csv';
 import { ResultError } from '../utils/customErrors/resultError';
-import { fetchExchangeRatesData } from '../external/fetchExchangeRatesData';
+import { ReportService } from '../services/reportService';
+
+const reportService = ReportService.getInstance();
 
 /**
  * @description Download transactions report in CSV format
@@ -25,29 +26,14 @@ export const downloadTransactionsReport = async (
     }
 
     try {
-        const targetSymbols = symbols.split(',');
-
-        const exchangeRates = await fetchExchangeRatesData(
+        const csvData = await reportService.fetchExchangeRatesDataService(
             baseCurrency,
-            targetSymbols
+            symbols
         );
-
-        if (!exchangeRates || Object.keys(exchangeRates).length === 0) {
-            return next(new ResultError('Failed to fetch exchange rates', 500));
-        }
-
-        const data = Object.entries(exchangeRates).map(([symbol, rate]) => ({
-            currency: symbol,
-            rate,
-        }));
-
-        const fields = ['currency', 'rate'];
-        const json2csvParser = new Parser({ fields });
-        const csv = json2csvParser.parse(data);
 
         res.header('Content-Type', 'text/csv');
         res.attachment('transactions_report.csv');
-        res.status(200).send(csv);
+        res.status(200).send(csvData);
     } catch (error) {
         next(error);
     }

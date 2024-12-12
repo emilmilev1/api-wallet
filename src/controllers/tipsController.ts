@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
-import { AverageExpense } from '../interfaces/averageExpense';
-import { constants } from '../common/constants';
-import { fetchAverageExpenses } from '../repositories/financialInfoRepository';
+import { ITipsService } from '../interfaces/service/tipsService.interface';
+import { getService } from '../di/container';
+
+const tipService = getService<ITipsService>('TipsService');
 
 /**
  * @description Get a random financial tip
@@ -14,11 +15,7 @@ export const getFinancialTips = async (
     next: NextFunction
 ) => {
     try {
-        const randomIndex: number = Math.floor(
-            Math.random() * constants.FINANCIAL_TIPS.length
-        );
-
-        const randomTip: string = constants.FINANCIAL_TIPS[randomIndex];
+        const randomTip = await tipService.getRandomFinancialTipService();
 
         res.status(200).json({ tips: randomTip });
     } catch (error) {
@@ -37,14 +34,7 @@ export const getAverageExpenses = async (
     next: NextFunction
 ) => {
     try {
-        const averages = await fetchAverageExpenses();
-
-        const averageExpenses: AverageExpense[] = averages.map(
-            (avg: { category: any; _avg: { amount: any } }) => ({
-                category: avg.category,
-                averageAmount: avg._avg.amount || 0,
-            })
-        );
+        const averageExpenses = await tipService.fetchAverageExpensesService();
 
         res.status(200).json({ averageExpenses });
     } catch (error) {

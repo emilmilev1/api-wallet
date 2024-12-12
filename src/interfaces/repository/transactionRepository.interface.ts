@@ -1,8 +1,8 @@
 import {
     CreateTransactionDTO,
     UpdateTransactionDTO,
-} from '../models/transaction.dto';
-import { Transaction } from './transaction';
+} from '../../models/transaction.dto';
+import { Transaction } from '../transaction';
 
 export interface ITransactionRepository {
     getTransactions(

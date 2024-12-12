@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
-import { fetchExchangeRatesData } from '../external/fetchExchangeRatesData';
 import { ResultError } from '../utils/customErrors/resultError';
+import { ExchangeRatesService } from '../services/exchangeRatesService';
+
+const transactionService = ExchangeRatesService.getInstance();
 
 /**
  * @description Get transactions in selected currency
@@ -24,21 +26,10 @@ export const exchangeRatesController = async (
     }
 
     try {
-        const targetSymbols = symbols.split(',');
-
-        const exchangeRates = await fetchExchangeRatesData(
+        const exchangeRates = await transactionService.fetchExchangeRateService(
             currency as string,
-            targetSymbols as string[]
+            symbols as string
         );
-        if (!exchangeRates) {
-            res.status(500).json({ error: 'Failed to fetch exchange rates' });
-        }
-
-        const exchangeRate = exchangeRates[currency as string];
-
-        if (!exchangeRate) {
-            res.status(400).json({ error: 'Invalid currency code' });
-        }
 
         res.status(200).json({
             currency,

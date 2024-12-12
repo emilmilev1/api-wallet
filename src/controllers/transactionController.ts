@@ -7,7 +7,7 @@ import {
 } from '../models/transaction.dto';
 import { TransactionQueryDTO } from '../models/transactionQuery.dto';
 import { getService } from '../di/container';
-import { ITransactionService } from '../interfaces/transactionService.interface';
+import { ITransactionService } from '../interfaces/service/transactionService.interface';
 
 const transactionService =
     getService<ITransactionService>('TransactionService');

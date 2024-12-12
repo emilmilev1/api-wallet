@@ -1,6 +1,6 @@
 import dbClient from '../database/dbClient';
 import { Transaction } from '../interfaces/transaction';
-import { ITransactionRepository } from '../interfaces/transactionRepository.interface';
+import { ITransactionRepository } from '../interfaces/repository/transactionRepository.interface';
 import {
     CreateTransactionDTO,
     UpdateTransactionDTO,

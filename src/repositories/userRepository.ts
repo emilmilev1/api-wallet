@@ -1,6 +1,6 @@
 import dbClient from '../database/dbClient';
 import { User } from '../interfaces/user';
-import { IUserRepository } from '../interfaces/userRepository.interface';
+import { IUserRepository } from '../interfaces/repository/userRepository.interface';
 
 export class UserRepository implements IUserRepository {
     /**

@@ -1,7 +1,9 @@
 import { AnalyticsRepository } from '../repositories/analyticsRepository';
+import { TipsRepository } from '../repositories/tipsRepository';
 import { TransactionRepository } from '../repositories/transactionRepository';
 import { UserRepository } from '../repositories/userRepository';
 import { AnalyticsService } from '../services/analyticsService';
+import { TipsService } from '../services/tipsService';
 import { TransactionService } from '../services/transactionService';
 import { UserAuthenticationService } from '../services/userAuthenticationService';
 import { ResultError } from '../utils/customErrors/resultError';
@@ -12,8 +14,9 @@ const container = new Map<string, () => any>();
 container.set('UserRepository', () => new UserRepository());
 container.set('TransactionRepository', () => new TransactionRepository());
 container.set('AnalyticsRepository', () => new AnalyticsRepository());
+container.set('TipsRepository', () => new TipsRepository());
 
-// Register services
+// Register services working with dbClient
 container.set(
     'UserAuthenticationService',
     () =>
@@ -34,6 +37,10 @@ container.set(
         new AnalyticsService(
             getService<AnalyticsRepository>('AnalyticsRepository')
         )
+);
+container.set(
+    'TipsService',
+    () => new TipsService(getService<TipsRepository>('TipsRepository'))
 );
 
 // Lazy initialization with factories

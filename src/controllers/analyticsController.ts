@@ -1,9 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { ResultError } from '../utils/customErrors/resultError';
-import { TransactionType } from '@prisma/client';
-import { MonthlySummary } from '../interfaces/monthlySummary';
 import { getService } from '../di/container';
-import { IAnalyticsService } from '../interfaces/analyticsService.interface';
+import { IAnalyticsService } from '../interfaces/service/analyticsService.interface';
 
 const analyticsService = getService<IAnalyticsService>('AnalyticsService');
 

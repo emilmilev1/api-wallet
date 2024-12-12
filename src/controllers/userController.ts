@@ -3,9 +3,9 @@ import { NextFunction, Request, Response } from 'express';
 import { ResultError } from '../utils/customErrors/resultError';
 import { CreateUserDTO, UserDTO } from '../models/user.dto';
 import { getService } from '../di/container';
-import { IUserAuthentication } from '../interfaces/userAuthentication.interface';
+import { IUserAuthenticationService } from '../interfaces/service/userAuthenticationService.interface';
 
-const authService = getService<IUserAuthentication>(
+const authService = getService<IUserAuthenticationService>(
     'UserAuthenticationService'
 );
 

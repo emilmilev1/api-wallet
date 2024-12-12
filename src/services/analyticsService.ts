@@ -1,4 +1,4 @@
-import { IAnalyticsService } from '../interfaces/analyticsService.interface';
+import { IAnalyticsService } from '../interfaces/service/analyticsService.interface';
 import { Transaction } from '@prisma/client';
 import { CategoryStats } from '../interfaces/categoryStats';
 import { TransactionType } from '../types/transactionType';
