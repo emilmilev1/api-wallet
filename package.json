@@ -39,6 +39,10 @@
         "swagger-ui-express": "^5.0.1",
         "winston": "^3.17.0"
     },
+    "overrides": {
+        "path-to-regexp": "0.1.13",
+        "tar": "^7.5.11"
+    },
     "devDependencies": {
         "@types/bcrypt": "^5.0.2",
         "@types/cors": "^2.8.17",
